@@ -19,6 +19,12 @@ library(OmixInsightR)
 
 ## For Developers
 
+### Code structure
+
+The whole package contains several categories of R files, import-*, export-*, transform-*, plot-* corresponding to data import, export, transformation and plotting respectively. For example, each type of plot under the plot-* category corresponds to one R file
+
+The import-* class file is used to read and parse the cbioportal format data and convert it to OmixInsightData class, the main function under the plot-* file, the first parameter receives OmixInsightData class uniformly.
+
 ### How to organize the code
 
 1. import-* functions in the R folder
