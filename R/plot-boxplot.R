@@ -164,6 +164,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
 #' @importFrom plotly plotly_json
 #' @importFrom jsonlite toJSON
 #' @importFrom fs path_ext_remove
+#' @importFrom dplyr %>%
 #' @export
 boxplotly <- function(d, output_file = "", filetype = "pdf", ...) {
   p <- boxplot(d, ...)
