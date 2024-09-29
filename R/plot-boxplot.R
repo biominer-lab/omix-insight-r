@@ -86,7 +86,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     p <- ggplot(d, aes(x = group, y = value, fill = group)) +
       geom_boxplot() +
       geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
-      stat_compare_means(method = method, label.sep = "\n") +
+      stat_compare_means(method = method, label.sep = "\n", label = "p.format") +
       labs(x = "Group", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
     
@@ -100,7 +100,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     p <- ggplot(d, aes(x = group, y = value, fill = group)) +
       geom_boxplot() +
       geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
-      stat_compare_means(method = method, label.sep = "\n") +
+      stat_compare_means(method = method, label.sep = "\n", label = "p.format") +
       labs(x = "Group", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
 
@@ -109,7 +109,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     p <- ggplot(d, aes(x = gene_symbol, y = value, fill = group)) +
       geom_boxplot() +
       geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
-      stat_compare_means(method = method, aes(label = ..p.format..), label.y = max(d$value) * 1.05) +
+      stat_compare_means(method = method, label="p.format", label.y = max(d$value) * 1.05) +
       labs(x = "Gene Symbol", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
 
@@ -135,7 +135,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     p <- ggplot(d, aes(x = gene_symbol, y = value, fill = group)) +
       geom_boxplot() +
       geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
-      stat_compare_means(method = method, label.sep = "\n") +
+      stat_compare_means(method = method, label.sep = "\n", label = "p.format") +
       labs(x = "Gene Symbol", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
   } else {
