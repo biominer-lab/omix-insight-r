@@ -41,10 +41,6 @@
 #' )
 #' boxplot(d)
 #'
-#' # This function does not support multiple genes in multiple groups.
-library(ggplot2)
-library(ggpubr)
-
 boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALSE,
                     custom_theme_fn = NULL, levels = NULL, enable_log2fc = FALSE) {
   
