@@ -72,6 +72,8 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     d$group <- factor(d$group, levels = levels)
   }
 
+  print(paste("length(unique(d$gene_symbol)) =", length(unique(d$gene_symbol))))
+  print(paste("length(unique(d$group)) =", length(unique(d$group))))
   # Plot logic based on group and gene symbol combinations
   if (length(unique(d$gene_symbol)) == 1 && length(unique(d$group)) == 2) {
     # Case 1: One gene in two groups (log2FC and p-value for the two groups)
