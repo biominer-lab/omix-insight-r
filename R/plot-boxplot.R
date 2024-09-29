@@ -12,16 +12,19 @@
 #'
 #' @param d A dataframe that contains the columns: gene_symbol, group, and value.
 #' @param method Statistical test to use ("t.test", "wilcox.test", "anova", "kruskal.test").
-#' @param jitter_size Size of the jitter points; should be between 0 and 1.
 #' @param log_scale Logical; if TRUE, log2 transformation is applied to the value column.
 #' @param custom_theme_fn A custom theme function for the plot (optional).
 #' @param levels Custom ordering of the group factor levels (optional).
+#' @param enable_log2fc Logical; if TRUE, log2 fold change is calculated and annotated.
+#' @param enable_label Logical; if TRUE, sample_id is annotated on the plot.
+#' 
 #' @return A ggplot object representing the boxplot.
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 geom_boxplot
 #' @importFrom ggplot2 geom_jitter
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 aes
+#' @importFrom ggplot2 annotate
 #' @importFrom ggpubr stat_compare_means
 #' @export
 #' @examples
@@ -152,6 +155,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
 #' @param output_file File path to save the output.
 #' @param filetype The file format to save as (e.g., "pdf", "png").
 #' @param ... Additional arguments passed to the boxplot function.
+#' 
 #' @return A ggplot object.
 #' @importFrom plotly ggplotly
 #' @importFrom plotly layout
@@ -177,10 +181,14 @@ boxplotly <- function(d, output_file = "", filetype = "pdf", ...) {
   return(p)
 }
 
-#' Query expression data and group information from external files (expression.csv, group.csv)
+#' Query expression data and sample info from external files (expression.csv, sample_info.csv)
 #' @param exp_file Path to the expression file.
-#' @param group_file Path to the group file.
-#' @return A dataframe containing the expression data and group information.
+#' @param sample_info_file Path to the sample info file.
+#' @param which_entrez_ids Entrez IDs to filter the expression data.
+#' @param which_gene_symbols Gene symbols to filter the expression data.
+#' @param which_groups Groups to filter the sample info.
+#' 
+#' @return A dataframe containing the expression data and sample info.
 #' @importFrom readr read_delim
 #' @importFrom dplyr left_join
 #' @importFrom tidyr pivot_longer

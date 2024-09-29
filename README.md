@@ -19,6 +19,14 @@ library(OmixInsightR)
 
 ## For Developers
 
+### How to build the package
+
+```{r}
+devtools::document()
+devtools::check()
+devtools::build()
+```
+
 ### Code structure
 
 The whole package contains several categories of R files, import-*, export-*, transform-*, plot-* corresponding to data import, export, transformation and plotting respectively. For example, each type of plot under the plot-* category corresponds to one R file
