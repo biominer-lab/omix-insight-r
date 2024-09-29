@@ -3,7 +3,7 @@ Title: To Analyze and Visualize Multi-omics Data.
 Version: 0.0.0.9000
 Authors@R: 
     person("Jingcheng", "Yang", , "yjcyxky@163.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID")),
+           comment = c(ORCID = "YOUR-ORCID-ID"))
     person("Yechao", "Huang", , "example@163.com", role = c("aut", "cre"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: OmixInsightR is a package to analyze and visualize multi-omics data. It can be used to analyze and visualize the data with cBioportal data format. It contains the functions to analyze and visualize the data, such as the mutation, copy number variation, mRNA expression, microRNA expression, protein expression, DNA methylation, and clinical data.
