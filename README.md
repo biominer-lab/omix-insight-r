@@ -10,6 +10,8 @@ install.packages("devtools")
 
 # Install OmixInsightR from github
 devtools::install_github("biominer-lab/omix-insight-r")
+
+devtools::install_git("file:///Users/jy006/Documents/Code/BioMiner/omix-insight-r")
 ```
 
 ## Usage

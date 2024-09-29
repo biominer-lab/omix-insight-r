@@ -252,15 +252,15 @@ query_data <- function(exp_file, sample_info_file, which_entrez_ids = NULL, whic
     stop("All sample IDs must be present in the expression file.")
   }
 
-  if (!is.null(which_entrez_ids)) {
+  if (!is.null(which_entrez_ids) && length(which_entrez_ids) > 0) {
     exp <- exp[exp$entrez_id %in% which_entrez_ids, ]
-  } else if (!is.null(which_gene_symbols)) {
+  } else if (!is.null(which_gene_symbols) && length(which_gene_symbols) > 0) {
     exp <- exp[exp$gene_symbol %in% which_gene_symbols, ]
   } else {
     stop("which_entrez_ids or which_gene_symbols is required.")
   }
 
-  if (!is.null(which_groups)) {
+  if (!is.null(which_groups) && length(which_groups) > 0) {
     sample_info <- sample_info[sample_info$group %in% which_groups, ]
   } else {
     stop("which_groups is required.")
@@ -275,5 +275,10 @@ query_data <- function(exp_file, sample_info_file, which_entrez_ids = NULL, whic
   d <- dplyr::left_join(d, sample_info, by = "sample_id")
   # Filter out rows with NA values in the group column
   d <- d[!is.na(d$group), ]
+
+  if (nrow(d) == 0) {
+    stop("No data left after filtering, please check your input parameters, such as which_entrez_ids, which_gene_symbols, and which_groups.")
+  }
+
   return(d)
 }
