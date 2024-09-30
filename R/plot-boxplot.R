@@ -81,14 +81,6 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
   # Plot logic based on group and gene symbol combinations
   if (length(unique(d$gene_symbol)) == 1 && length(unique(d$group)) == 2) {
     # Case 1: One gene in two groups (log2FC and p-value for the two groups)
-    if (enable_log2fc) {
-      log2foldchange <- if (log_scale) {
-        mean(log2(d$value[d$group == ordered_groups[1]])) - mean(log2(d$value[d$group == ordered_groups[2]]))
-      } else {
-        mean(d$value[d$group == ordered_groups[1]]) - mean(d$value[d$group == ordered_groups[2]])
-      }
-    }
-
     p <- ggplot(d, aes(x = group, y = value, fill = group)) +
       geom_boxplot(position = position_dodge(width = 0.75)) +
       geom_jitter(size = 2, alpha = 0.6, color = "black", position = position_dodge(width = 0.75)) +
@@ -96,10 +88,18 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
       labs(x = "Group", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
     
-    # Add log2 fold change to the plot
-    p <- p + annotate("text", x = 1.5, y = max(d$value) * 1.05,
-                      label = paste("\nlog2FC =", round(log2foldchange, 2)),
-                      size = 5, fontface = "italic", hjust = 0.5)
+    if (enable_log2fc) {
+      log2foldchange <- if (log_scale) {
+        mean(log2(d$value[d$group == ordered_groups[1]])) - mean(log2(d$value[d$group == ordered_groups[2]]))
+      } else {
+          mean(d$value[d$group == ordered_groups[1]]) - mean(d$value[d$group == ordered_groups[2]])
+      }
+
+      # Add log2 fold change to the plot
+      p <- p + annotate("text", x = 1.5, y = max(d$value) * 1.05,
+                        label = paste("\nlog2FC =", round(log2foldchange, 2)),
+                        size = 5, fontface = "italic", hjust = 0.5)
+    }
 
   } else if (length(unique(d$gene_symbol)) == 1 && length(unique(d$group)) > 2) {
     # Case 2: One gene in multiple groups (only p-value for multiple group comparisons)
