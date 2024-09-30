@@ -27,6 +27,7 @@
 #' @importFrom ggplot2 annotate
 #' @importFrom ggplot2 position_dodge
 #' @importFrom ggpubr stat_compare_means
+#' @importFrom ggsci scale_fill_npg
 #' @export
 #' @examples
 #' # Example with two genes and two groups
@@ -157,6 +158,8 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
                        position = position_jitter(width = 0.2),
                        size = 3, vjust = -0.5, alpha = 0.8)
   }
+
+  p <- p + theme(legend.position = "top", plot.title = element_text(hjust = 0.5)) + scale_fill_npg()
   
   return(p)
 }
