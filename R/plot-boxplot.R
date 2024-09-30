@@ -86,9 +86,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     # Case 1: One gene in two groups (log2FC and p-value for the two groups)
     p <- ggplot(d, aes(x = group, y = value, fill = group)) +
       geom_boxplot(position = position_dodge(width = 0.75)) +
-      geom_jitter(size = 2, alpha = 0.6, color = "black", position = position_dodge(width = 0.75)) +
-      stat_compare_means(method = method, label.sep = "\n", label = "p.format") +
-      labs(x = "Group", y = ytitle, fill = "Group", title = title) +
+      labs(x = "Group", y = paste0(gene_symbols[1], " ", ytitle), fill = "Group", title = title) +
       custom_theme_fn()
 
     if (enable_log2fc) {
@@ -108,8 +106,6 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     # Case 2: One gene in multiple groups (only p-value for multiple group comparisons)
     p <- ggplot(d, aes(x = group, y = value, fill = group)) +
       geom_boxplot(position = position_dodge(width = 0.75)) +
-      geom_jitter(size = 2, alpha = 0.6, color = "black", position = position_dodge(width = 0.75)) +
-      stat_compare_means(method = method, label.sep = "\n", label = "p.format") +
       labs(x = "Group", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
 
@@ -117,8 +113,6 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     # Case 3: Multiple genes in two groups (log2FC and p-value for each gene separately)
     p <- ggplot(d, aes(x = gene_symbol, y = value, fill = group)) +
       geom_boxplot(position = position_dodge(width = 0.75)) +
-      geom_jitter(size = 2, alpha = 0.6, color = "black", position = position_dodge(width = 0.75)) +
-      stat_compare_means(method = method, label="p.format", label.y = max(d$value) * 1.05) +
       labs(x = "Gene Symbol", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
 
@@ -138,7 +132,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
         p <- p + annotate("text", x = which(gene_symbols == gene),
                           y = max(d$value) * 1.05,
                           label = paste("\nlog2FC =", round(log2foldchange, 2)),
-                          size = 4, fontface = "italic", hjust = 0.5)
+                          size = 5, fontface = "italic", hjust = 0.5)
       }
     }
 
@@ -146,8 +140,6 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     # Case 4: Multiple genes in multiple groups (p-value for multiple group comparisons per gene)
     p <- ggplot(d, aes(x = gene_symbol, y = value, fill = group)) +
       geom_boxplot(position = position_dodge(width = 0.75)) +
-      geom_jitter(size = 2, alpha = 0.6, color = "black", position = position_dodge(width = 0.75)) +
-      stat_compare_means(method = method, label.sep = "\n", label = "p.format") +
       labs(x = "Gene Symbol", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
   } else {
@@ -161,7 +153,9 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
                        size = 3, vjust = -0.5, alpha = 0.8)
   }
 
-  p <- p + theme(legend.position = "top", plot.title = element_text(hjust = 0.5)) + scale_fill_npg()
+  p <- p + geom_jitter(size = 2, alpha = 0.6, color = "black", position = position_dodge(width = 0.75)) +
+    stat_compare_means(method = method, label = "p.format", label.y = max(d$value) * 1.05, size = 5, label.x = 1.4) +
+    theme(legend.position = "top", plot.title = element_text(hjust = 0.5)) + scale_fill_npg()
 
   return(p)
 }
