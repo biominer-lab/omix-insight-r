@@ -2,7 +2,7 @@
 #'
 #' `boxplot()` requires a dataframe containing at least three columns: gene_symbol, group, and value.
 #' The gene_symbol column may contain multiple genes, and the value column contains the corresponding gene expression values.
-#' 
+#'
 #' Optionally, an organ column can be included for further grouping, but the function doesn't support the case of multiple genes across multiple groups.
 #'
 #' For more details, refer to:
@@ -17,7 +17,7 @@
 #' @param ordered_groups Custom ordering of the group factor levels (optional).
 #' @param enable_log2fc Logical; if TRUE, log2 fold change is calculated and annotated.
 #' @param enable_label Logical; if TRUE, sample_id is annotated on the plot.
-#' 
+#'
 #' @return A ggplot object representing the boxplot.
 #' @importFrom ggplot2 ggplot
 #' @importFrom ggplot2 geom_boxplot
@@ -55,17 +55,17 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
   } else {
     ytitle <- "Expression [ExprValue]"
   }
-  
+
   title <- "Expression on BoxPlot"
-  
+
   # Check custom theme function
   if (is.null(custom_theme_fn) || !is.function(custom_theme_fn)) {
     warning("Invalid custom_theme_fn provided. Using default theme.")
     custom_theme_fn <- custom_theme
   }
-  
+
   if (is.null(ordered_groups)) {
-    ordered_groups <- unique(d$group)
+    ordered_groups <- sort(unique(d$group))
   }
 
   # Set group factor levels if provided
@@ -73,14 +73,16 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     d$group <- factor(d$group, levels = ordered_groups)
   }
 
-  d$gene_symbol <- factor(d$gene_symbol, levels = sort(unique(d$gene_symbol)))
+  gene_symbols <- sort(unique(d$gene_symbol))
+  d$gene_symbol <- factor(d$gene_symbol, levels = gene_symbols)
   d$entrez_id <- factor(d$entrez_id, levels = sort(unique(d$entrez_id)))
 
-  print(paste("unique(d$gene_symbol) =", unique(d$gene_symbol)))
+  print(paste("gene_symbols =", gene_symbols))
   print(paste("unique(d$group) =", unique(d$group)))
   print(paste("ordered_groups =", ordered_groups))
+
   # Plot logic based on group and gene symbol combinations
-  if (length(unique(d$gene_symbol)) == 1 && length(unique(d$group)) == 2) {
+  if (length(gene_symbols) == 1 && length(unique(d$group)) == 2) {
     # Case 1: One gene in two groups (log2FC and p-value for the two groups)
     p <- ggplot(d, aes(x = group, y = value, fill = group)) +
       geom_boxplot(position = position_dodge(width = 0.75)) +
@@ -88,7 +90,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
       stat_compare_means(method = method, label.sep = "\n", label = "p.format") +
       labs(x = "Group", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
-    
+
     if (enable_log2fc) {
       log2foldchange <- if (log_scale) {
         mean(log2(d$value[d$group == ordered_groups[1]])) - mean(log2(d$value[d$group == ordered_groups[2]]))
@@ -102,7 +104,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
                         size = 5, fontface = "italic", hjust = 0.5)
     }
 
-  } else if (length(unique(d$gene_symbol)) == 1 && length(unique(d$group)) > 2) {
+  } else if (length(gene_symbols) == 1 && length(unique(d$group)) > 2) {
     # Case 2: One gene in multiple groups (only p-value for multiple group comparisons)
     p <- ggplot(d, aes(x = group, y = value, fill = group)) +
       geom_boxplot(position = position_dodge(width = 0.75)) +
@@ -111,7 +113,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
       labs(x = "Group", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
 
-  } else if (length(unique(d$gene_symbol)) > 1 && length(unique(d$group)) == 2) {
+  } else if (length(gene_symbols) > 1 && length(unique(d$group)) == 2) {
     # Case 3: Multiple genes in two groups (log2FC and p-value for each gene separately)
     p <- ggplot(d, aes(x = gene_symbol, y = value, fill = group)) +
       geom_boxplot(position = position_dodge(width = 0.75)) +
@@ -122,25 +124,25 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
 
     if (enable_log2fc) {
       # Calculate and annotate log2 fold change for each gene
-      for (gene in unique(d$gene_symbol)) {
+      for (gene in gene_symbols) {
         gene_data <- d[d$gene_symbol == gene, ]
         log2foldchange <- if (log_scale) {
-          mean(log2(gene_data$value[gene_data$group == ordered_groups[1]])) - 
+          mean(log2(gene_data$value[gene_data$group == ordered_groups[1]])) -
             mean(log2(gene_data$value[gene_data$group == ordered_groups[2]]))
         } else {
-          mean(gene_data$value[gene_data$group == ordered_groups[1]]) - 
+          mean(gene_data$value[gene_data$group == ordered_groups[1]]) -
             mean(gene_data$value[gene_data$group == ordered_groups[2]])
         }
         print(paste("gene =", gene, "log2foldchange =", log2foldchange))
 
-        p <- p + annotate("text", x = which(unique(d$gene_symbol) == gene), 
+        p <- p + annotate("text", x = which(gene_symbols == gene),
                           y = max(d$value) * 1.05,
                           label = paste("\nlog2FC =", round(log2foldchange, 2)),
                           size = 4, fontface = "italic", hjust = 0.5)
       }
     }
 
-  } else if (length(unique(d$gene_symbol)) > 1 && length(unique(d$group)) > 2) {
+  } else if (length(gene_symbols) > 1 && length(unique(d$group)) > 2) {
     # Case 4: Multiple genes in multiple groups (p-value for multiple group comparisons per gene)
     p <- ggplot(d, aes(x = gene_symbol, y = value, fill = group)) +
       geom_boxplot(position = position_dodge(width = 0.75)) +
@@ -160,7 +162,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
   }
 
   p <- p + theme(legend.position = "top", plot.title = element_text(hjust = 0.5)) + scale_fill_npg()
-  
+
   return(p)
 }
 
@@ -169,7 +171,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
 #' @param output_file File path to save the output.
 #' @param filetype The file format to save as (e.g., "pdf", "png").
 #' @param ... Additional arguments passed to the boxplot function.
-#' 
+#'
 #' @return A ggplot object.
 #' @importFrom plotly ggplotly
 #' @importFrom plotly layout
@@ -180,19 +182,19 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
 #' @export
 boxplotly <- function(d, output_file = "", filetype = "pdf", ...) {
   p <- boxplot(d, ...)
-  
+
   # If output file is specified, save JSON and PDF
   if (!is.null(output_file) && nchar(output_file) > 0) {
     json <- plotly_json(ggplotly(p) %>% layout(boxmode = "group"), FALSE)
     write(json, file = output_file)
-    
+
     # Save as PDF
     filepath <- dirname(output_file)
     filename <- basename(output_file)
-    save2pdf(p, filename = paste0(fs::path_ext_remove(filename), ".", filetype), 
+    save2pdf(p, filename = paste0(fs::path_ext_remove(filename), ".", filetype),
              filepath = filepath, width = 8, height = 8)
   }
-  
+
   return(p)
 }
 
@@ -202,7 +204,7 @@ boxplotly <- function(d, output_file = "", filetype = "pdf", ...) {
 #' @param which_entrez_ids Entrez IDs to filter the expression data.
 #' @param which_gene_symbols Gene symbols to filter the expression data.
 #' @param which_groups Groups to filter the sample info.
-#' 
+#'
 #' @return A dataframe containing the expression data and sample info.
 #' @importFrom readr read_delim
 #' @importFrom dplyr left_join
@@ -211,17 +213,17 @@ boxplotly <- function(d, output_file = "", filetype = "pdf", ...) {
 #' @examples
 #' # Two groups, two genes
 #' d <- query_data(exp_file = "./examples/gene_expression.tsv", sample_info_file = "./examples/sample_info.tsv", which_entrez_ids = c("SL003951", "SL003970"), which_groups = c("Female_MECFS", "Female_Control"))
-#' 
+#'
 #' # One group, multiple genes
 #' d <- query_data(exp_file = "./examples/gene_expression.tsv", sample_info_file = "./examples/sample_info.tsv", which_gene_symbols = c("TP53", "ERBB2"), which_groups = c("Female_MECFS"))
-#' 
+#'
 #' # Two groups, multiple genes
 #' d <- query_data(exp_file = "./examples/gene_expression.tsv", sample_info_file = "./examples/sample_info.tsv", which_entrez_ids = c("SL003951", "SL003970", "SL003980"), which_groups = c("Female_MECFS", "Female_Control", "Male_MECFS"))
 query_data <- function(exp_file, sample_info_file, which_entrez_ids = NULL, which_gene_symbols = NULL, which_groups = NULL) {
   # Set the separator to tab or comma depending on the file extension
   exp_file_ext <- fs::path_ext(exp_file)
   sample_info_file_ext <- fs::path_ext(sample_info_file)
-  
+
   if (exp_file_ext == "csv") {
     sep <- ","
   } else if (exp_file_ext == "tsv") {
@@ -234,7 +236,7 @@ query_data <- function(exp_file, sample_info_file, which_entrez_ids = NULL, whic
 
   exp_colnames <- colnames(exp)
   sample_info_colnames <- colnames(sample_info)
-  
+
   if (!'gene_symbol' %in% exp_colnames) {
     stop("Expression file must contain a 'gene_symbol' column.")
   }
@@ -278,7 +280,7 @@ query_data <- function(exp_file, sample_info_file, which_entrez_ids = NULL, whic
   } else {
     stop("which_groups is required.")
   }
-  
+
   # if (length(which_entrez_ids) > 1 && length(which_groups) > 2) {
     # stop("Multiple genes and multiple groups are not supported.")
   # }
