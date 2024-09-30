@@ -25,6 +25,7 @@
 #' @importFrom ggplot2 labs
 #' @importFrom ggplot2 aes
 #' @importFrom ggplot2 annotate
+#' @importFrom ggplot2 position_dodge
 #' @importFrom ggpubr stat_compare_means
 #' @export
 #' @examples
