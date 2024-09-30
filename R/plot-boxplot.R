@@ -71,8 +71,8 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     d$group <- factor(d$group, levels = ordered_groups)
   }
 
-  d$gene_symbol <- factor(d$gene_symbol, levels = unique(d$gene_symbol))
-  d$entrez_id <- factor(d$entrez_id, levels = unique(d$entrez_id))
+  d$gene_symbol <- factor(d$gene_symbol, levels = sort(unique(d$gene_symbol)))
+  d$entrez_id <- factor(d$entrez_id, levels = sort(unique(d$entrez_id)))
 
   print(paste("unique(d$gene_symbol) =", unique(d$gene_symbol)))
   print(paste("unique(d$group) =", unique(d$group)))
