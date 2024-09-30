@@ -21,12 +21,17 @@ library(OmixInsightR)
 
 ## For Developers
 
-### How to build the package
+### How to check and build the package
 
 ```{r}
 devtools::document()
 devtools::check()
 devtools::build()
+```
+
+```{bash}
+conda activate biomedgps
+R -e "devtools::document(); devtools::check(); devtools::build()"
 ```
 
 ### Code structure

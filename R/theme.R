@@ -2,7 +2,7 @@
 #'
 #' A custom theme for ggplot2
 #' @return custom theme
-#' @importFrom ggplot2 theme_bw
+#' @importFrom ggplot2 theme_minimal
 #' @importFrom ggplot2 theme
 #' @importFrom ggplot2 element_text
 #' @importFrom ggplot2 element_blank
