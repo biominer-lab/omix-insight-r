@@ -14,7 +14,7 @@
 #' @param method Statistical test to use ("t.test", "wilcox.test", "anova", "kruskal.test").
 #' @param log_scale Logical; if TRUE, log2 transformation is applied to the value column.
 #' @param custom_theme_fn A custom theme function for the plot (optional).
-#' @param levels Custom ordering of the group factor levels (optional).
+#' @param ordered_groups Custom ordering of the group factor levels (optional).
 #' @param enable_log2fc Logical; if TRUE, log2 fold change is calculated and annotated.
 #' @param enable_label Logical; if TRUE, sample_id is annotated on the plot.
 #' 
@@ -45,8 +45,7 @@
 #' boxplot(d)
 #'
 boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALSE,
-                    custom_theme_fn = NULL, levels = NULL, enable_log2fc = FALSE) {
-  
+                    custom_theme_fn = NULL, ordered_groups = NULL, enable_log2fc = FALSE) {
   # Apply log transformation if needed
   if (log_scale) {
     d$value <- log2(d$value + 1)
@@ -63,29 +62,35 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
     custom_theme_fn <- custom_theme
   }
   
-  if (is.null(levels)) {
-    levels <- unique(d$group)
+  if (is.null(ordered_groups)) {
+    ordered_groups <- unique(d$group)
   }
 
-  # Set group levels if provided
-  if (!is.null(levels)) {
-    d$group <- factor(d$group, levels = levels)
+  # Set group factor levels if provided
+  if (!is.null(ordered_groups)) {
+    d$group <- factor(d$group, levels = ordered_groups)
   }
 
-  print(paste("length(unique(d$gene_symbol)) =", length(unique(d$gene_symbol))))
-  print(paste("length(unique(d$group)) =", length(unique(d$group))))
+  d$gene_symbol <- factor(d$gene_symbol, levels = unique(d$gene_symbol))
+  d$entrez_id <- factor(d$entrez_id, levels = unique(d$entrez_id))
+
+  print(paste("unique(d$gene_symbol) =", unique(d$gene_symbol)))
+  print(paste("unique(d$group) =", unique(d$group)))
+  print(paste("ordered_groups =", ordered_groups))
   # Plot logic based on group and gene symbol combinations
   if (length(unique(d$gene_symbol)) == 1 && length(unique(d$group)) == 2) {
     # Case 1: One gene in two groups (log2FC and p-value for the two groups)
-    log2foldchange <- if (enable_log2fc) {
-      mean(log2(d$value[d$group == levels[1]])) - mean(log2(d$value[d$group == levels[2]]))
-    } else {
-      mean(d$value[d$group == levels[1]]) - mean(d$value[d$group == levels[2]])
+    if (enable_log2fc) {
+      log2foldchange <- if (log_scale) {
+        mean(log2(d$value[d$group == ordered_groups[1]])) - mean(log2(d$value[d$group == ordered_groups[2]]))
+      } else {
+        mean(d$value[d$group == ordered_groups[1]]) - mean(d$value[d$group == ordered_groups[2]])
+      }
     }
 
     p <- ggplot(d, aes(x = group, y = value, fill = group)) +
-      geom_boxplot() +
-      geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
+      geom_boxplot(position = position_dodge(width = 0.75)) +
+      geom_jitter(size = 2, alpha = 0.6, color = "black", position = position_dodge(width = 0.75)) +
       stat_compare_means(method = method, label.sep = "\n", label = "p.format") +
       labs(x = "Group", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
@@ -98,8 +103,8 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
   } else if (length(unique(d$gene_symbol)) == 1 && length(unique(d$group)) > 2) {
     # Case 2: One gene in multiple groups (only p-value for multiple group comparisons)
     p <- ggplot(d, aes(x = group, y = value, fill = group)) +
-      geom_boxplot() +
-      geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
+      geom_boxplot(position = position_dodge(width = 0.75)) +
+      geom_jitter(size = 2, alpha = 0.6, color = "black", position = position_dodge(width = 0.75)) +
       stat_compare_means(method = method, label.sep = "\n", label = "p.format") +
       labs(x = "Group", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
@@ -107,34 +112,37 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
   } else if (length(unique(d$gene_symbol)) > 1 && length(unique(d$group)) == 2) {
     # Case 3: Multiple genes in two groups (log2FC and p-value for each gene separately)
     p <- ggplot(d, aes(x = gene_symbol, y = value, fill = group)) +
-      geom_boxplot() +
-      geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
+      geom_boxplot(position = position_dodge(width = 0.75)) +
+      geom_jitter(size = 2, alpha = 0.6, color = "black", position = position_dodge(width = 0.75)) +
       stat_compare_means(method = method, label="p.format", label.y = max(d$value) * 1.05) +
       labs(x = "Gene Symbol", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
 
-    # Calculate and annotate log2 fold change for each gene
-    for (gene in unique(d$gene_symbol)) {
-      gene_data <- d[d$gene_symbol == gene, ]
-      log2foldchange <- if (enable_log2fc) {
-        mean(log2(gene_data$value[gene_data$group == levels[1]])) - 
-          mean(log2(gene_data$value[gene_data$group == levels[2]]))
-      } else {
-        mean(gene_data$value[gene_data$group == levels[1]]) - 
-          mean(gene_data$value[gene_data$group == levels[2]])
-      }
+    if (enable_log2fc) {
+      # Calculate and annotate log2 fold change for each gene
+      for (gene in unique(d$gene_symbol)) {
+        gene_data <- d[d$gene_symbol == gene, ]
+        log2foldchange <- if (log_scale) {
+          mean(log2(gene_data$value[gene_data$group == ordered_groups[1]])) - 
+            mean(log2(gene_data$value[gene_data$group == ordered_groups[2]]))
+        } else {
+          mean(gene_data$value[gene_data$group == ordered_groups[1]]) - 
+            mean(gene_data$value[gene_data$group == ordered_groups[2]])
+        }
+        print(paste("gene =", gene, "log2foldchange =", log2foldchange))
 
-      p <- p + annotate("text", x = which(unique(d$gene_symbol) == gene), 
-                        y = max(d$value) * 1.05,
-                        label = paste("\nlog2FC =", round(log2foldchange, 2)),
-                        size = 4, fontface = "italic", hjust = 0.5)
+        p <- p + annotate("text", x = which(unique(d$gene_symbol) == gene), 
+                          y = max(d$value) * 1.05,
+                          label = paste("\nlog2FC =", round(log2foldchange, 2)),
+                          size = 4, fontface = "italic", hjust = 0.5)
+      }
     }
 
   } else if (length(unique(d$gene_symbol)) > 1 && length(unique(d$group)) > 2) {
     # Case 4: Multiple genes in multiple groups (p-value for multiple group comparisons per gene)
     p <- ggplot(d, aes(x = gene_symbol, y = value, fill = group)) +
-      geom_boxplot() +
-      geom_jitter(width = 0.2, size = 2, alpha = 0.6) +
+      geom_boxplot(position = position_dodge(width = 0.75)) +
+      geom_jitter(size = 2, alpha = 0.6, color = "black", position = position_dodge(width = 0.75)) +
       stat_compare_means(method = method, label.sep = "\n", label = "p.format") +
       labs(x = "Gene Symbol", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
