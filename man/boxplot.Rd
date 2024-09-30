@@ -10,7 +10,7 @@ boxplot(
   log_scale = FALSE,
   enable_label = FALSE,
   custom_theme_fn = NULL,
-  levels = NULL,
+  ordered_groups = NULL,
   enable_log2fc = FALSE
 )
 }
@@ -25,7 +25,7 @@ boxplot(
 
 \item{custom_theme_fn}{A custom theme function for the plot (optional).}
 
-\item{levels}{Custom ordering of the group factor levels (optional).}
+\item{ordered_groups}{Custom ordering of the group factor levels (optional).}
 
 \item{enable_log2fc}{Logical; if TRUE, log2 fold change is calculated and annotated.}
 }
