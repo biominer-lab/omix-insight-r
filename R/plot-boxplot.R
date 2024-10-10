@@ -27,7 +27,7 @@
 #' @importFrom ggplot2 aes
 #' @importFrom ggplot2 annotate
 #' @importFrom ggplot2 position_dodge
-#' @importFrom ggpubr stat_compare_means
+#' @importFrom ggplot2 geom_segment
 #' @importFrom ggsci scale_fill_npg
 #' @export
 #' @examples
@@ -137,7 +137,7 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
       }
 
       # 组合log2FC和p值
-      combined_label <- sprintf("log2FC = %.2f\n%s", log2foldchange, p_format)
+      combined_label <- sprintf("log2FC = %.2f %s", log2foldchange, p_format)
       labels <- c(labels, combined_label)
     }
 
@@ -169,8 +169,20 @@ boxplot <- function(d, method = "t.test", log_scale = FALSE, enable_label = FALS
       labs(x = "Group", y = ytitle, fill = "Group", title = title) +
       custom_theme_fn()
 
-    for (i in 1:length(log2fc_labels)) {
-      p <- p + annotate("text", x = i, y = max(d$value) * 1.05, label = log2fc_labels[i], size = 5, fontface = "italic", hjust = 0.5)
+    comparisons <- combn(unique(as.character(d$group)), 2, simplify = FALSE)
+    for (i in 1:length(comparisons)) {
+      group1 <- comparisons[[i]][1]
+      group2 <- comparisons[[i]][2]
+      
+      x_start <- match(group1, levels(d$group))
+      x_end <- match(group2, levels(d$group))
+      
+      y_position <- max(d$value) * (1.05 + 0.05 * i)
+
+      p <- p + 
+        annotate("segment", x = x_start, xend = x_end, y = y_position, yend = y_position) +
+        annotate("text", x = (x_start + x_end) / 2, y = y_position + 0.02, 
+                label = log2fc_labels[i], size = 5, fontface = "italic", hjust = 0.5)
     }
   } else if (length(gene_symbols) > 1 && length(unique(d$group)) == 2) {
     print("Case 3: Multiple genes in two groups (log2FC and p-value for each gene separately)")
