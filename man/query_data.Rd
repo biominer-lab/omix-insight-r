@@ -7,7 +7,7 @@
 query_data(
   exp_file,
   sample_info_file,
-  which_entrez_ids = NULL,
+  which_ids = NULL,
   which_gene_symbols = NULL,
   which_groups = NULL
 )
@@ -17,7 +17,7 @@ query_data(
 
 \item{sample_info_file}{Path to the sample info file.}
 
-\item{which_entrez_ids}{Entrez IDs to filter the expression data.}
+\item{which_ids}{IDs to filter the expression data.}
 
 \item{which_gene_symbols}{Gene symbols to filter the expression data.}
 
@@ -31,11 +31,11 @@ Query expression data and sample info from external files (expression.csv, sampl
 }
 \examples{
 # Two groups, two genes
-d <- query_data(exp_file = "./examples/gene_expression.tsv", sample_info_file = "./examples/sample_info.tsv", which_entrez_ids = c("SL003951", "SL003970"), which_groups = c("Female_MECFS", "Female_Control"))
+d <- query_data(exp_file = "./examples/gene_expression.tsv", sample_info_file = "./examples/sample_info.tsv", which_ids = c("SL003951", "SL003970"), which_groups = c("Female_MECFS", "Female_Control"))
 
 # One group, multiple genes
 d <- query_data(exp_file = "./examples/gene_expression.tsv", sample_info_file = "./examples/sample_info.tsv", which_gene_symbols = c("TP53", "ERBB2"), which_groups = c("Female_MECFS"))
 
 # Two groups, multiple genes
-d <- query_data(exp_file = "./examples/gene_expression.tsv", sample_info_file = "./examples/sample_info.tsv", which_entrez_ids = c("SL003951", "SL003970", "SL003980"), which_groups = c("Female_MECFS", "Female_Control", "Male_MECFS"))
+d <- query_data(exp_file = "./examples/gene_expression.tsv", sample_info_file = "./examples/sample_info.tsv", which_ids = c("SL003951", "SL003970", "SL003980"), which_groups = c("Female_MECFS", "Female_Control", "Male_MECFS"))
 }

@@ -47,19 +47,27 @@ For more details, refer to:
 }
 }
 \examples{
-# Example with two genes and two groups
+# Example with one gene and two groups
 d <- data.frame(
-  gene_symbol = rep(c("TP53", "ERBB2"), each = 12),
-  group = rep(c("Control", "Test"), each = 12),
-  value = round(runif(24), 1)
+  gene_symbol = rep("TP53", 18),
+  group = rep(c("Control", "Test1"), each = 9),
+  value = round(runif(18), 1)
 )
 boxplot(d)
 
-# Example with one gene and multiple groups
+#' # Example with one gene and multiple groups
 d <- data.frame(
   gene_symbol = rep("TP53", 18),
   group = rep(c("Control", "Test1", "Test2"), each = 6),
   value = round(runif(18), 1)
+)
+boxplot(d)
+
+# Example with two genes and two groups
+d <- data.frame(
+  gene_symbol = rep(c("TP53", "ERBB2"), each = 12),
+  group = rep(rep(c("Control", "Test"), each = 12 / 2), 2),
+  value = round(runif(24), 1)
 )
 boxplot(d)
 

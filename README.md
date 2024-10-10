@@ -25,6 +25,11 @@ library(OmixInsightR)
 
 ```{r}
 devtools::document()
+devtools::load_all()
+```
+
+```{r}
+devtools::document()
 devtools::check()
 devtools::build()
 ```

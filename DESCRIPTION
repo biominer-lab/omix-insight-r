@@ -14,7 +14,9 @@ Imports: ggplot2 (>= 3.4.0),
          plotly (>= 4.10.0),
          fs (>= 1.6.0),
          readr (>= 2.1.4),
-         ggsci (>= 2.9)
+         ggsci (>= 2.9),
+Suggests: limma,
+          DESeq2
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
